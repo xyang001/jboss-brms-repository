@@ -1,0 +1,10 @@
+<configuration>
+  <imports>
+    <imports>
+      <import>
+        <type>java.lang.RuntimeException</type>
+      </import>
+    </imports>
+  </imports>
+  <version>1.0</version>
+</configuration>

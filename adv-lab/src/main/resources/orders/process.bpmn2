@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.jboss.org/drools" xmlns="http://www.jboss.org/drools" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" id="Definition" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.jboss.org/drools" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_ItemDefinition_82" structureRef="java.math.BigDecimal"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_99" structureRef="java.util.List"/>
+  <bpmn2:itemDefinition id="ItemDefinition_2" structureRef="model.OrderItem"/>
+  <bpmn2:itemDefinition id="ItemDefinition_1" structureRef="model.Order"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_1080" structureRef="java.lang.String"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_1087" structureRef="java.lang.Integer"/>
+  <bpmn2:itemDefinition id="ItemDefinition_3" structureRef="org.kie.api.runtime.process.WorkItem"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_2544" structureRef="java.lang.Long"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_2549" structureRef="java.lang.Object"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_2552" structureRef="java.util.Map.Entry"/>
+  <bpmn2:itemDefinition id="_ItemDefinition_2553" structureRef="java.util.Map"/>
+  <bpmn2:error id="Error_1" errorCode="101" name="Bad Order" structureRef="ItemDefinition_1"/>
+  <bpmn2:message id="inventory_order" itemRef="ItemDefinition_1" name="Message 1"/>
+  <bpmn2:message id="tax_order" itemRef="ItemDefinition_1" name="Message 2"/>
+  <bpmn2:interface id="Interface_2" implementationRef="service.OrderService" name="service.OrderService">
+    <bpmn2:operation id="_Operation_2" name="processInventory">
+      <bpmn2:inMessageRef>inventory_order</bpmn2:inMessageRef>
+    </bpmn2:operation>
+    <bpmn2:operation id="_Operation_3" name="calcSalesTax">
+      <bpmn2:inMessageRef>tax_order</bpmn2:inMessageRef>
+    </bpmn2:operation>
+  </bpmn2:interface>
+  <bpmn2:process id="orders.Process" tns:version="1" tns:packageName="orders" tns:adHoc="false" name="Process" isExecutable="true" processType="Private">
+    <bpmn2:extensionElements>
+      <tns:import name="model.Order"/>
+      <tns:import name="java.math.BigDecimal"/>
+      <tns:import name="java.util.List"/>
+      <tns:import name="model.OrderItem"/>
+      <tns:import name="java.lang.String"/>
+      <tns:import name="java.lang.Integer"/>
+      <tns:import name="org.kie.api.runtime.process.WorkItem"/>
+      <tns:import name="java.lang.Object"/>
+      <tns:import name="java.util.Map.Entry"/>
+      <tns:import name="java.util.Map"/>
+    </bpmn2:extensionElements>
+    <bpmn2:property id="order" itemSubjectRef="ItemDefinition_1"/>
+    <bpmn2:property id="orders" itemSubjectRef="_ItemDefinition_99"/>
+    <bpmn2:property id="backorder" itemSubjectRef="ItemDefinition_1"/>
+    <bpmn2:property id="error" itemSubjectRef="ItemDefinition_3"/>
+    <bpmn2:startEvent id="StartEvent_1" name="StartProcess">
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:serviceTask id="ServiceTask_1" name="Process Inventory" operationRef="_Operation_2">
+      <bpmn2:documentation id="Documentation_8">verify inventory exists for each item and if not - split into two orders, one a backorder with the items that cannot be fulfilled</bpmn2:documentation>
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script>if (orders.size() > 1)
+  System.out.println(&quot;Some items have been backordered.&quot;);</tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_5">
+        <bpmn2:dataInput id="DataInput_2" itemSubjectRef="ItemDefinition_1" name="Parameter"/>
+        <bpmn2:dataOutput id="DataOutput_2" itemSubjectRef="ItemDefinition_1" name="Result"/>
+        <bpmn2:inputSet id="InputSet_1" name="Input Set 1">
+          <bpmn2:dataInputRefs>DataInput_2</bpmn2:dataInputRefs>
+        </bpmn2:inputSet>
+        <bpmn2:outputSet id="OutputSet_1" name="Output Set 1">
+          <bpmn2:dataOutputRefs>DataOutput_2</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_3">
+        <bpmn2:sourceRef>order</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_2</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:dataOutputAssociation id="DataOutputAssociation_2">
+        <bpmn2:sourceRef>DataOutput_2</bpmn2:sourceRef>
+        <bpmn2:targetRef>orders</bpmn2:targetRef>
+      </bpmn2:dataOutputAssociation>
+    </bpmn2:serviceTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" tns:priority="1" name="" sourceRef="StartEvent_1" targetRef="ServiceTask_1"/>
+    <bpmn2:sequenceFlow id="SequenceFlow_3" tns:priority="1" name="" sourceRef="ServiceTask_1" targetRef="SubProcess_1"/>
+    <bpmn2:subProcess id="SubProcess_1" name="Process Order Totals">
+      <bpmn2:extensionElements>
+        <tns:onEntry-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onEntry-script>
+        <tns:onExit-script scriptFormat="http://www.java.com/java">
+          <tns:script></tns:script>
+        </tns:onExit-script>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="InputOutputSpecification_6">
+        <bpmn2:dataInput id="DataInput_6" itemSubjectRef="ItemDefinition_1" name="inOrders"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:dataInputAssociation id="DataInputAssociation_2">
+        <bpmn2:sourceRef>orders</bpmn2:sourceRef>
+        <bpmn2:targetRef>DataInput_6</bpmn2:targetRef>
+      </bpmn2:dataInputAssociation>
+      <bpmn2:multiInstanceLoopCharacteristics id="MultiInstanceLoopCharacteristics_1">
+        <bpmn2:loopDataInputRef>DataInput_6</bpmn2:loopDataInputRef>
+        <bpmn2:inputDataItem xsi:type="bpmn2:tDataInput" id="DataInput_7" itemSubjectRef="ItemDefinition_1" name="myOrder"/>
+      </bpmn2:multiInstanceLoopCharacteristics>
+      <bpmn2:startEvent id="StartEvent_2" name="">
+        <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:sequenceFlow id="SequenceFlow_6" tns:priority="1" name="" sourceRef="StartEvent_2" targetRef="ScriptTask_1"/>
+      <bpmn2:scriptTask id="ScriptTask_1" name="Calc Order Total" scriptFormat="http://www.java.com/java">
+        <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
+        <bpmn2:script>Order inOrder = DataInput_7;
+for(OrderItem item : inOrder.getItems()) {
+  inOrder.setOrderTotal(inOrder.getOrderTotal().add(item.getExtPrice()));
+  if (item.getBackorderedQuantity() > 0) {
+    inOrder.setBackorderedItems(inOrder.getBackorderedItems() + 1);
+  }
+}
+
+if (&quot;BACKORDER&quot;.equals(inOrder.getStatus()))
+  kcontext.setVariable(&quot;backorder&quot;, inOrder);</bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:sequenceFlow id="SequenceFlow_5" tns:priority="1" name="" sourceRef="ScriptTask_1" targetRef="ServiceTask_2"/>
+      <bpmn2:serviceTask id="ServiceTask_2" name="Calc Sales Tax" operationRef="_Operation_3">
+        <bpmn2:extensionElements>
+          <tns:onEntry-script scriptFormat="http://www.java.com/java">
+            <tns:script></tns:script>
+          </tns:onEntry-script>
+          <tns:onExit-script scriptFormat="http://www.java.com/java">
+            <tns:script></tns:script>
+          </tns:onExit-script>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>SequenceFlow_5</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
+        <bpmn2:ioSpecification id="InputOutputSpecification_2">
+          <bpmn2:dataInput id="DataInput_4" itemSubjectRef="ItemDefinition_1" name="Parameter"/>
+          <bpmn2:inputSet id="InputSet_2" name="Input Set 2">
+            <bpmn2:dataInputRefs>DataInput_4</bpmn2:dataInputRefs>
+          </bpmn2:inputSet>
+          <bpmn2:outputSet id="OutputSet_2" name="Output Set 2"/>
+        </bpmn2:ioSpecification>
+        <bpmn2:dataInputAssociation id="DataInputAssociation_4">
+          <bpmn2:sourceRef>DataInput_7</bpmn2:sourceRef>
+          <bpmn2:targetRef>DataInput_4</bpmn2:targetRef>
+        </bpmn2:dataInputAssociation>
+      </bpmn2:serviceTask>
+      <bpmn2:sequenceFlow id="SequenceFlow_7" tns:priority="1" name="" sourceRef="ServiceTask_2" targetRef="EndEvent_3"/>
+      <bpmn2:endEvent id="EndEvent_3" name="">
+        <bpmn2:incoming>SequenceFlow_7</bpmn2:incoming>
+      </bpmn2:endEvent>
+    </bpmn2:subProcess>
+    <bpmn2:sequenceFlow id="SequenceFlow_2" tns:priority="1" name="" sourceRef="SubProcess_1" targetRef="ExclusiveGateway_1"/>
+    <bpmn2:exclusiveGateway id="ExclusiveGateway_1" name="" gatewayDirection="Diverging">
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_9</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="SequenceFlow_8" tns:priority="1" name="No Back Order" sourceRef="ExclusiveGateway_1" targetRef="EndEvent_1">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_1" language="http://www.java.com/java">return backorder == null;</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="SequenceFlow_9" tns:priority="1" name="back order" sourceRef="ExclusiveGateway_1" targetRef="IntermediateCatchEvent_1">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="FormalExpression_6" language="http://www.java.com/java">return backorder != null;</bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:intermediateCatchEvent id="IntermediateCatchEvent_1" name="">
+      <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_10</bpmn2:outgoing>
+      <bpmn2:timerEventDefinition id="TimerEventDefinition_1">
+        <bpmn2:timeDuration xsi:type="bpmn2:tFormalExpression" id="FormalExpression_4">10s</bpmn2:timeDuration>
+      </bpmn2:timerEventDefinition>
+    </bpmn2:intermediateCatchEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_10" tns:priority="1" name="" sourceRef="IntermediateCatchEvent_1" targetRef="ScriptTask_2"/>
+    <bpmn2:scriptTask id="ScriptTask_2" name="Process Back Order" scriptFormat="http://www.java.com/java">
+      <bpmn2:incoming>SequenceFlow_10</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
+      <bpmn2:script>System.out.println(&quot;Timer fired - processing back order&quot;);</bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:sequenceFlow id="SequenceFlow_11" tns:priority="1" name="" sourceRef="ScriptTask_2" targetRef="EndEvent_4"/>
+    <bpmn2:endEvent id="EndEvent_4" name="">
+      <bpmn2:incoming>SequenceFlow_11</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:endEvent id="EndEvent_1" name="">
+      <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:subProcess id="SubProcess_2" name="Error 101" triggeredByEvent="true">
+      <bpmn2:startEvent id="StartEvent_4" name="">
+        <bpmn2:outgoing>SequenceFlow_12</bpmn2:outgoing>
+        <bpmn2:dataOutput id="DataOutput_1" name="Error_1_Output"/>
+        <bpmn2:dataOutputAssociation id="DataOutputAssociation_1">
+          <bpmn2:sourceRef>DataOutput_1</bpmn2:sourceRef>
+          <bpmn2:targetRef>error</bpmn2:targetRef>
+        </bpmn2:dataOutputAssociation>
+        <bpmn2:outputSet id="OutputSet_3" name="Output Set 3">
+          <bpmn2:dataOutputRefs>DataOutput_1</bpmn2:dataOutputRefs>
+        </bpmn2:outputSet>
+        <bpmn2:errorEventDefinition id="ErrorEventDefinition_1" errorRef="Error_1"/>
+      </bpmn2:startEvent>
+      <bpmn2:sequenceFlow id="SequenceFlow_12" tns:priority="1" name="" sourceRef="StartEvent_4" targetRef="ScriptTask_3"/>
+      <bpmn2:scriptTask id="ScriptTask_3" name="Handle Error" scriptFormat="http://www.java.com/java">
+        <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
+        <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+        <bpmn2:script>System.out.println(&quot;Got an error 101&quot;);
+Throwable throwable = (Throwable) error.getParameters().get(&quot;bad.order&quot;);
+System.out.println(throwable.getCause().getMessage());</bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:sequenceFlow id="SequenceFlow_4" tns:priority="1" name="" sourceRef="ScriptTask_3" targetRef="EndEvent_2"/>
+      <bpmn2:endEvent id="EndEvent_2" name="">
+        <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      </bpmn2:endEvent>
+    </bpmn2:subProcess>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_1" bpmnElement="orders.Process">
+      <bpmndi:BPMNShape id="BPMNShape_SubProcess_1" bpmnElement="SubProcess_1" isExpanded="true">
+        <dc:Bounds height="222.0" width="255.0" x="500.0" y="24.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_SubProcess_2" bpmnElement="SubProcess_2" isExpanded="true">
+        <dc:Bounds height="183.0" width="300.0" x="0.0" y="268.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds height="0.0" width="0.0" x="155.0" y="125.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_1" bpmnElement="ServiceTask_1">
+        <dc:Bounds height="50.0" width="110.0" x="296.0" y="118.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_2" bpmnElement="StartEvent_2">
+        <dc:Bounds height="36.0" width="36.0" x="512.0" y="44.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ScriptTask_1" bpmnElement="ScriptTask_1">
+        <dc:Bounds height="50.0" width="110.0" x="531.0" y="95.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_2" bpmnElement="ServiceTask_2">
+        <dc:Bounds height="50.0" width="110.0" x="531.0" y="175.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_3" bpmnElement="EndEvent_3">
+        <dc:Bounds height="36.0" width="36.0" x="691.0" y="182.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_1" bpmnElement="ExclusiveGateway_1" isMarkerVisible="true">
+        <dc:Bounds height="50.0" width="50.0" x="603.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_1" bpmnElement="EndEvent_1">
+        <dc:Bounds height="36.0" width="36.0" x="770.0" y="297.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_IntermediateCatchEvent_1" bpmnElement="IntermediateCatchEvent_1">
+        <dc:Bounds height="36.0" width="36.0" x="612.0" y="367.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ScriptTask_2" bpmnElement="ScriptTask_2">
+        <dc:Bounds height="50.0" width="110.0" x="420.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_4" bpmnElement="EndEvent_4">
+        <dc:Bounds height="36.0" width="36.0" x="333.0" y="297.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_4" bpmnElement="StartEvent_4">
+        <dc:Bounds height="36.0" width="36.0" x="20.0" y="288.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ScriptTask_3" bpmnElement="ScriptTask_3">
+        <dc:Bounds height="50.0" width="110.0" x="80.0" y="310.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_2" bpmnElement="EndEvent_2">
+        <dc:Bounds height="36.0" width="36.0" x="230.0" y="317.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_ServiceTask_1">
+        <di:waypoint xsi:type="dc:Point" x="191.0" y="143.0"/>
+        <di:waypoint xsi:type="dc:Point" x="238.0" y="143.0"/>
+        <di:waypoint xsi:type="dc:Point" x="238.0" y="143.0"/>
+        <di:waypoint xsi:type="dc:Point" x="296.0" y="143.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_3" sourceElement="BPMNShape_ServiceTask_1" targetElement="BPMNShape_SubProcess_1">
+        <di:waypoint xsi:type="dc:Point" x="406.0" y="143.0"/>
+        <di:waypoint xsi:type="dc:Point" x="448.0" y="143.0"/>
+        <di:waypoint xsi:type="dc:Point" x="448.0" y="135.0"/>
+        <di:waypoint xsi:type="dc:Point" x="500.0" y="135.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="SequenceFlow_6" sourceElement="BPMNShape_StartEvent_2" targetElement="BPMNShape_ScriptTask_1">
+        <di:waypoint xsi:type="dc:Point" x="548.0" y="62.0"/>
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="62.0"/>
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="95.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="SequenceFlow_5" sourceElement="BPMNShape_ScriptTask_1" targetElement="BPMNShape_ServiceTask_2">
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="145.0"/>
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="158.0"/>
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="158.0"/>
+        <di:waypoint xsi:type="dc:Point" x="586.0" y="175.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="SequenceFlow_7" sourceElement="BPMNShape_ServiceTask_2" targetElement="BPMNShape_EndEvent_3">
+        <di:waypoint xsi:type="dc:Point" x="641.0" y="200.0"/>
+        <di:waypoint xsi:type="dc:Point" x="663.0" y="200.0"/>
+        <di:waypoint xsi:type="dc:Point" x="663.0" y="200.0"/>
+        <di:waypoint xsi:type="dc:Point" x="691.0" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="SequenceFlow_2" sourceElement="BPMNShape_SubProcess_1" targetElement="BPMNShape_ExclusiveGateway_1">
+        <di:waypoint xsi:type="dc:Point" x="627.0" y="246.0"/>
+        <di:waypoint xsi:type="dc:Point" x="627.0" y="265.0"/>
+        <di:waypoint xsi:type="dc:Point" x="628.0" y="265.0"/>
+        <di:waypoint xsi:type="dc:Point" x="628.0" y="290.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_8" bpmnElement="SequenceFlow_8" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_EndEvent_1">
+        <di:waypoint xsi:type="dc:Point" x="654.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="706.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="706.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="770.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_9" bpmnElement="SequenceFlow_9" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_IntermediateCatchEvent_1">
+        <di:waypoint xsi:type="dc:Point" x="628.0" y="341.0"/>
+        <di:waypoint xsi:type="dc:Point" x="628.0" y="352.0"/>
+        <di:waypoint xsi:type="dc:Point" x="630.0" y="352.0"/>
+        <di:waypoint xsi:type="dc:Point" x="630.0" y="367.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_10" bpmnElement="SequenceFlow_10" sourceElement="BPMNShape_IntermediateCatchEvent_1" targetElement="BPMNShape_ScriptTask_2">
+        <di:waypoint xsi:type="dc:Point" x="612.0" y="385.0"/>
+        <di:waypoint xsi:type="dc:Point" x="576.0" y="385.0"/>
+        <di:waypoint xsi:type="dc:Point" x="576.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="530.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_11" bpmnElement="SequenceFlow_11" sourceElement="BPMNShape_ScriptTask_2" targetElement="BPMNShape_EndEvent_4">
+        <di:waypoint xsi:type="dc:Point" x="420.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="398.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="398.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="369.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_12" bpmnElement="SequenceFlow_12" sourceElement="BPMNShape_StartEvent_4" targetElement="BPMNShape_ScriptTask_3">
+        <di:waypoint xsi:type="dc:Point" x="38.0" y="324.0"/>
+        <di:waypoint xsi:type="dc:Point" x="38.0" y="335.0"/>
+        <di:waypoint xsi:type="dc:Point" x="80.0" y="335.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_4" sourceElement="BPMNShape_ScriptTask_3" targetElement="BPMNShape_EndEvent_2">
+        <di:waypoint xsi:type="dc:Point" x="190.0" y="335.0"/>
+        <di:waypoint xsi:type="dc:Point" x="208.0" y="335.0"/>
+        <di:waypoint xsi:type="dc:Point" x="208.0" y="335.0"/>
+        <di:waypoint xsi:type="dc:Point" x="230.0" y="335.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
